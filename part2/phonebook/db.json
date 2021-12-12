@@ -1,21 +1,6 @@
 {
   "persons": [
     {
-      "name": "greg2",
-      "number": "456465465546",
-      "id": 6
-    },
-    {
-      "name": "greg",
-      "number": "2313305055",
-      "id": 7
-    },
-    {
-      "name": "1",
-      "number": "1",
-      "id": 8
-    },
-    {
       "name": "13",
       "number": "12",
       "id": 9
@@ -24,6 +9,21 @@
       "name": "134",
       "number": "124",
       "id": 10
+    },
+    {
+      "name": "gabe",
+      "number": "45",
+      "id": 12
+    },
+    {
+      "name": "Gregory Bastianelli",
+      "number": "2313306066",
+      "id": 14
+    },
+    {
+      "name": "grant",
+      "number": "2316661234",
+      "id": 15
     }
   ]
 }
