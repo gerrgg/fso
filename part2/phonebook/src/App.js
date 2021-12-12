@@ -1,8 +1,26 @@
 import axios from "axios";
+import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import Form from "./Form";
 import Table from "./Table";
 import personService from "./services/persons";
+import Input from "./components/Input";
+import Notification from "./Notification";
+
+const Wrapper = styled.div`
+  max-width: 600px;
+  margin: 0 auto;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 25px 50px;
+  box-sizing: border-box;
+  background: #333;
+  color: #f7f7f7;
+`;
+
+const Heading = styled.h2`
+  font: 700 36px/42px helvetica;
+  margin-bottom: 0.5rem;
+`;
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,6 +28,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setNewSearch] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     axios.get("http://localhost:3001/persons").then((response) => {
@@ -17,11 +36,20 @@ const App = () => {
     });
   }, []);
 
+  const setNotification = (message) => {
+    setErrorMessage(message);
+
+    setTimeout(() => {
+      setErrorMessage("");
+    }, 5000);
+  };
+
   const addPerson = () => {
     const newPerson = { name: newName, number: newNumber };
 
     personService.create(newPerson).then((person) => {
       setPersons(persons.concat(person));
+      setNotification(`${person.name} added!`);
       setNewName("");
       setNewNumber("");
     });
@@ -35,10 +63,12 @@ const App = () => {
     if (result) {
       const updatedPerson = { ...match, number: newNumber };
 
-      personService.update(match.id, updatedPerson).then((returnedNote) => {
+      personService.update(match.id, updatedPerson).then((returnedPerson) => {
+        setNotification(`${returnedPerson.name} updated!`);
+
         setPersons(
           persons.map((person) =>
-            person.id !== match.id ? person : updatedPerson
+            person.id !== match.id ? person : returnedPerson
           )
         );
       });
@@ -56,9 +86,6 @@ const App = () => {
 
     // no match, create else update
     !match ? addPerson() : updatePerson(match);
-
-    // reset input state
-    setNewName("");
   };
 
   const handleDelete = (name) => {
@@ -68,9 +95,18 @@ const App = () => {
       const personToBeDeleted = persons.find((p) => p.name === name);
 
       if (personToBeDeleted) {
-        personService.remove(personToBeDeleted.id).then((id) => {
-          setPersons(persons.filter((p) => p.id !== personToBeDeleted.id));
-        });
+        personService
+          .remove(personToBeDeleted.id)
+          .then((id) => {
+            setPersons(persons.filter((p) => p.id !== personToBeDeleted.id));
+            setNotification(`${personToBeDeleted.name} deleted!`);
+          })
+          .catch((error) => {
+            setNotification(
+              `${personToBeDeleted.name} has already been removed from the server!`
+            );
+            setPersons(persons.filter((p) => p.id !== personToBeDeleted.id));
+          });
       }
     }
   };
@@ -87,22 +123,23 @@ const App = () => {
         );
 
   return (
-    <div>
-      <h2>Search</h2>
-      <input onChange={(e) => handleNewSearch(e)} value={search} />
-      <h2>Phonebook</h2>
+    <Wrapper>
+      <Notification message={errorMessage} />
+      <Heading>Search</Heading>
+      <Input onChange={(e) => handleNewSearch(e)} value={search} />
+      <Heading>Add Person</Heading>
       <Form
         handleSubmit={handleSubmit}
         handleNewNameChange={handleNewNameChange}
         handleNewNumberChange={handleNewNumberChange}
       />
-      <h2>Numbers</h2>
+      <Heading>People</Heading>
       {!peopleToShow.length && search.length ? (
         <p>No results...</p>
       ) : (
         <Table persons={peopleToShow} handleDelete={handleDelete} />
       )}
-    </div>
+    </Wrapper>
   );
 };
 

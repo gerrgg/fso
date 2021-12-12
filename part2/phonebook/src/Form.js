@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Input from "./components/Input";
+import Button from "./components/Button";
 
 const Form = ({
   handleSubmit,
@@ -9,14 +11,21 @@ const Form = ({
 }) => (
   <form onSubmit={(e) => handleSubmit(e)}>
     <div>
-      name: <input onChange={(e) => handleNewNameChange(e)} value={newName} />
+      <Input
+        onChange={(e) => handleNewNameChange(e)}
+        value={newName}
+        placeholder="Name"
+      />
     </div>
     <div>
-      phone:
-      <input onChange={(e) => handleNewNumberChange(e)} value={newNumber} />
+      <Input
+        onChange={(e) => handleNewNumberChange(e)}
+        value={newNumber}
+        placeholder="Number"
+      />
     </div>
     <div>
-      <button type="submit">add</button>
+      <Button type="submit">Submit</Button>
     </div>
   </form>
 );
