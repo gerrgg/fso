@@ -171,7 +171,23 @@ const app = express()
 app.use(express.json())
 //...
 
-app.post('/api/notes', (request, response) => {  const note = request.body  console.log(note)  response.json(note)})
+app.post("/api/people", (request, response) => {
+  const body = request.body;
+
+  if (!body.name || !body.number) {
+    response.status(400).json({
+      error: "name and number is required",
+    });
+  }
+
+  const person = {
+    id: generateID(),
+    name: body.name,
+    number: body.number,
+  };
+
+  people = people.concat(person);
+});
 ```
 
 ### Rest Client
