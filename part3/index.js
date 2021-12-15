@@ -1,7 +1,21 @@
+var morgan = require("morgan");
 const express = require("express");
 const app = express();
 
+morgan.token("object", function (req, res) {
+  console.log(req.body);
+  return JSON.stringify(req.body);
+});
+
 app.use(express.json());
+
+app.use(
+  morgan(
+    ":method :url :status :res[content-length] - :response-time ms :object"
+  )
+);
+
+const requestLogger = (request, response, next) => {};
 
 let people = [
   {
@@ -26,6 +40,11 @@ let people = [
   },
 ];
 
+const generateID = () => {
+  const id = people.length > 0 ? Math.max(...people.map((n) => n.id)) : 0;
+  return id + 1;
+};
+
 app.get("/info", (request, response) => {
   const date = new Date();
   response.send(
@@ -48,22 +67,28 @@ app.delete("/api/people/:id", (request, response) => {
   const id = Number(request.params.id);
   people = people.filter((person) => person.id !== id);
 
-  console.log(people);
   response.status(204).end();
 });
 
-const generateID = () => {
-  const id = people.length > 0 ? Math.max(...people.map((n) => n.id)) : 0;
-  return id + 1;
-};
-
 app.post("/api/people", (request, response) => {
   const body = request.body;
+
+  const match = people.filter(
+    (p) => p.name.toLocaleLowerCase() === body.name.toLocaleLowerCase()
+  );
 
   if (!body.name || !body.number) {
     response.status(400).json({
       error: "name and number is required",
     });
+    return;
+  }
+
+  if (match.length) {
+    response.status(400).json({
+      error: "name must be unique",
+    });
+    return;
   }
 
   const person = {
