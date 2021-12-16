@@ -2,10 +2,14 @@ import React from "react";
 import Button from "./components/Button";
 import styled from "styled-components";
 
+const Wrapper = styled.div`
+  height: 300px;
+  overflow-y: scroll;
+  width: 100%;
+`;
+
 const TableWrapper = styled.table`
   width: 100%;
-  max-height: 300px;
-  overflow-y: scroll;
 `;
 
 const TableCell = styled.td`
@@ -46,25 +50,27 @@ const Person = ({ name, number, handleDelete }) => (
 );
 
 const Table = ({ persons, handleDelete }) => (
-  <TableWrapper>
-    <thead>
-      <tr>
-        <TableHead>Name</TableHead>
-        <TableHead>Number</TableHead>
-        <TableHead>Delete?</TableHead>
-      </tr>
-    </thead>
-    <tbody>
-      {persons.map(({ name, number }) => (
-        <Person
-          name={name}
-          number={number}
-          key={number + name}
-          handleDelete={handleDelete}
-        />
-      ))}
-    </tbody>
-  </TableWrapper>
+  <Wrapper>
+    <TableWrapper>
+      <thead>
+        <tr>
+          <TableHead>Name</TableHead>
+          <TableHead>Number</TableHead>
+          <TableHead>Delete?</TableHead>
+        </tr>
+      </thead>
+      <tbody>
+        {persons.map(({ name, number }) => (
+          <Person
+            name={name}
+            number={number}
+            key={number + name}
+            handleDelete={handleDelete}
+          />
+        ))}
+      </tbody>
+    </TableWrapper>
+  </Wrapper>
 );
 
 export default Table;

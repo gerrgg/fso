@@ -1,4 +1,3 @@
-import axios from "axios";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import Form from "./Form";
@@ -6,6 +5,18 @@ import Table from "./Table";
 import personService from "./services/persons";
 import Input from "./components/Input";
 import Notification from "./Notification";
+import { useWindowDimension } from "./useWindowDimensions";
+import Background from "./Background";
+
+function getRandomImage(windowWidth, windowHeight, setBackgroundImage) {
+  const min = Math.ceil(100);
+  const max = Math.floor(500);
+  const seed = Math.floor(Math.random() * (max - min) + min);
+
+  setBackgroundImage(
+    `https://picsum.photos/seed/${seed}/${windowWidth}/${windowHeight}`
+  );
+}
 
 const Wrapper = styled.div`
   max-width: 600px;
@@ -24,15 +35,17 @@ const Heading = styled.h2`
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-
+  const [windowWidth, windowHeight] = useWindowDimension();
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setNewSearch] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
+  const [backgroundImage, setBackgroundImage] = useState();
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
+    personService.getAll().then((people) => {
+      getRandomImage(windowWidth, windowHeight, setBackgroundImage);
+      setPersons(people);
     });
   }, []);
 
@@ -48,10 +61,12 @@ const App = () => {
     const newPerson = { name: newName, number: newNumber };
 
     personService.create(newPerson).then((person) => {
-      setPersons(persons.concat(person));
-      setNotification(`${person.name} added!`);
       setNewName("");
       setNewNumber("");
+      setPersons(persons.concat(person));
+      setNotification(`${person.name} added!`);
+
+      console.log(newName, newNumber);
     });
   };
 
@@ -124,6 +139,7 @@ const App = () => {
 
   return (
     <Wrapper>
+      <Background url={backgroundImage} />
       <Notification message={errorMessage} />
       <Heading>Search</Heading>
       <Input onChange={(e) => handleNewSearch(e)} value={search} />
@@ -132,6 +148,8 @@ const App = () => {
         handleSubmit={handleSubmit}
         handleNewNameChange={handleNewNameChange}
         handleNewNumberChange={handleNewNumberChange}
+        newName={newName}
+        newNumber={newNumber}
       />
       <Heading>People</Heading>
       {!peopleToShow.length && search.length ? (

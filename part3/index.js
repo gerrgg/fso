@@ -1,12 +1,14 @@
 var morgan = require("morgan");
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
 
 morgan.token("object", function (req, res) {
-  console.log(req.body);
   return JSON.stringify(req.body);
 });
 
+app.use(cors());
 app.use(express.json());
 
 app.use(
@@ -14,8 +16,6 @@ app.use(
     ":method :url :status :res[content-length] - :response-time ms :object"
   )
 );
-
-const requestLogger = (request, response, next) => {};
 
 let people = [
   {
@@ -100,7 +100,8 @@ app.post("/api/people", (request, response) => {
   people = people.concat(person);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
